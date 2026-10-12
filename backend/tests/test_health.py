@@ -12,3 +12,11 @@ def test_health_endpoint():
         "status": "healthy",
         "service": "ai-support-assistant"
     }
+
+def test_nonexistent_endpoint():
+    response = client.get("/nonexistent")
+
+    assert response.status_code == 404
+    assert response.json() == {
+        "detail": "Not Found"
+    }
