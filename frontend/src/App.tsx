@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { getBackendHealth } from './services/api'
 import './App.css'
 
 type Message = {
@@ -37,11 +38,39 @@ function App() {
     setInput('')
   }
 
+  const [backendStatus, setBackendStatus] = useState('Checking...')
+  useEffect(() => {
+    let active = true
+
+    const checkBackend = async () => {
+      try {
+        const data = await getBackendHealth()
+
+        if (active) {
+          setBackendStatus(data.status)
+        }
+      } catch (error) {
+        console.error('Backend connection failed:', error)
+
+        if (active) {
+          setBackendStatus('Disconnected')
+        }
+      }
+    }
+
+    checkBackend()
+
+    return () => {
+      active = false
+    }
+  }, [])
+  
   return (
     <div className="chat-container">
       <header className="chat-header">
         <h1>AI Support Assistant</h1>
         <p>Your intelligent support companion</p>
+        <p>Backend: {backendStatus}</p>
       </header>
 
       <main className="chat-messages">
